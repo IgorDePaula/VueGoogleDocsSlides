@@ -89,22 +89,17 @@
                     presentationId: slideId
                 }).then(response => {
                     //console.log('response 1', response.result.slides)
-                   const res= response.result.slides.map(async (slide) => {
-                        const teste = await gapi.client.slides.presentations.pages.getThumbnail({
-                            presentationId: slideId,
-                            pageObjectId: slide.objectId
-                        })/*.then(response => {
-                            console.log('response 2',response.result.contentUrl)
-                            this.thumbnails.push(response.result.contentUrl)
-
-                        }, function(response) {
-                           console.error('Error: ' + response.result.error.message);
-                        });*/
-                       this.thumbnails.push(teste.result.contentUrl)
-                       console.log(teste.result.contentUrl)
-                        return teste.result.contentUrl
+                    Promise.all(
+                        response.result.slides.map(async (slide) => {
+                            const teste = await gapi.client.slides.presentations.pages.getThumbnail({
+                                presentationId: slideId,
+                                pageObjectId: slide.objectId
+                            })
+                            return teste
+                        })
+                    ).then(response => {
+                        this.thumbnails = response.map(item => item.result.contentUrl)
                     })
-                    console.log(res.value)
                 });
             }
         }
