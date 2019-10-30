@@ -3,8 +3,13 @@
         <img alt="Vue logo" src="./assets/logo.png">
         <button id="authorize_button" v-if="auth" @click="handleAuthClick">Authorize</button>
         <button id="signout_button" v-if="!auth" @click="handleSignoutClick">Sign Out</button>
+        <br>
+        <br>
         <ul>
             <li v-for="item in docs" @click="getThumbnail(item.id)" :key="item.id">{{item.name}}</li>
+        </ul>
+        <ul>
+            <li v-for="item in thumbnails" :key="item"><img width="300" :src="item" alt=""></li>
         </ul>
     </div>
 </template>
@@ -18,7 +23,7 @@
                 auth: true,
                 apiKey: 'AIzaSyCTrU266mWLQjD9D4NyGUQl9CY3Tm-idgA',
                 clientId: '284342642848-9iq27f5v971epnr6qiuvktoh2tduqfjc.apps.googleusercontent.com',
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest','https://slides.googleapis.com/$discovery/rest?version=v1'],
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest', 'https://slides.googleapis.com/$discovery/rest?version=v1'],
                 scope: 'https://www.googleapis.com/auth/presentations',
                 docs: [],
                 thumbnails: []
@@ -78,25 +83,28 @@
                 });
 
             },
-            getThumbnail(slideId){
+            getThumbnail(slideId) {
+                this.thumbnails = []
                 gapi.client.slides.presentations.get({
                     presentationId: slideId
-                }).then(function(response) {
-                    console.log('response 1',response.result.slides)
-                    response.result.slides.forEach(slide =>{
-                        gapi.client.slides.presentations.pages.getThumbnail({
+                }).then(response => {
+                    //console.log('response 1', response.result.slides)
+                   const res= response.result.slides.map(async (slide) => {
+                        const teste = await gapi.client.slides.presentations.pages.getThumbnail({
                             presentationId: slideId,
                             pageObjectId: slide.objectId
-                        }).then(function(response) {
-                            console.log('response 2',response)
+                        })/*.then(response => {
+                            console.log('response 2',response.result.contentUrl)
+                            this.thumbnails.push(response.result.contentUrl)
 
                         }, function(response) {
-                           consonle.error('Error: ' + response.result.error.message);
-                        });
+                           console.error('Error: ' + response.result.error.message);
+                        });*/
+                       this.thumbnails.push(teste.result.contentUrl)
+                       console.log(teste.result.contentUrl)
+                        return teste.result.contentUrl
                     })
-
-                }, function(response) {
-                    consonle.error('Error: ' + response.result.error.message);
+                    console.log(res.value)
                 });
             }
         }
