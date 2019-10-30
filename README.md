@@ -1,5 +1,5 @@
 # vuegoogledocs
-
+Projeto para integrar vue com acesso ao google docs e slides 
 ## Project setup
 ```
 yarn install
